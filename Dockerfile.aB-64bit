@@ -1,6 +1,6 @@
-# Run amiBroker in a container.
+# Run MetaTrader in a container.
 #
-# Copyright (c) 2023 moritius <smorituri@gmail.com>
+# Copyright (c) 2022 tick <tickelton@gmail.com>
 #
 # SPDX-License-Identifier:     ISC
 #
@@ -9,8 +9,8 @@
 #	-v /tmp/.X11-unix:/tmp/.X11-unix \
 #	-e DISPLAY \
 #	-v $AMIBROKER_HOST_PATH:/amiBroker \
-#	--name amiBroker \
-#	smorituri/amiBroker
+#	--name mt \
+#	tickelton/mt
 
 # Base docker image.
 FROM ubuntu:focal
@@ -28,7 +28,7 @@ RUN apt-get update && \
 	mv /winehq.key /usr/share/keyrings/winehq-archive.key && \
 	dpkg --add-architecture i386 && \
 	apt-get update && \
-	apt-get install -y -q --install-recommends winehq-devel winetricks && \
+	apt-get install -y -q --install-recommends winehq-devel && \
 	rm -rf /var/lib/apt/lists/* /winehq.key
 
 # Add wine user.
@@ -41,12 +41,6 @@ RUN groupadd -g 1000 wine \
 
 # Run amiBroker as non privileged user.
 USER wine
-
-# adding winetricks required to install and run amiBroker
-# RUN winetricks -q corefonts mfc42 riched20 wsh57 mdac28
-#RUN winetricks -q vcrun2005
-#RUN winetricks -q mdac28
-# RUN winetricks -q msvcrt=native wscript.exe=native
 
 # Autorun amiBroker Terminal.
 ENTRYPOINT [ "wine" ]
