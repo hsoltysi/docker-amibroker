@@ -28,8 +28,11 @@ RUN apt-get update && \
 	mv /winehq.key /usr/share/keyrings/winehq-archive.key && \
 	dpkg --add-architecture i386 && \
 	apt-get update && \
-	apt-get install -y -q --install-recommends winehq-devel winetricks && \
+	apt-get install -y -q --install-recommends winehq-devel winetricks zenity && \
 	rm -rf /var/lib/apt/lists/* /winehq.key
+
+# Add root password for future winetricks via sudo
+RUN echo 'root:Docker!' | chpasswd
 
 # Add wine user.
 # NOTE: You might need to change the UID/GID so the
@@ -39,16 +42,22 @@ RUN groupadd -g 1000 wine \
 	&& useradd -g wine -u 1000 wine \
 	&& mkdir -p /home/wine/.wine && chown -R wine:wine /home/wine
 
-# Run amiBroker as non privileged user.
+# Run MetaTrader as non privileged user.
 USER wine
+
+# amiBroker needs WINEARCH=win32.
+# Not strictly necessary, but this
+# way it works...
+ENV WINEARCH win32
 
 # adding winetricks required to install and run amiBroker
 # RUN winetricks -q corefonts mfc42 riched20 wsh57 mdac28
-#RUN winetricks -q vcrun2005
+#RUN winetricks -q mfc42
 #RUN winetricks -q mdac28
+#RUN winetricks -q vcrun2005
 # RUN winetricks -q msvcrt=native wscript.exe=native
 
 # Autorun amiBroker Terminal.
 ENTRYPOINT [ "wine" ]
-#CMD [ "/MetaTrader/terminal64.exe", "/portable" ]
+#CMD [ "/MetaTrader/terminal.exe", "/portable" ]
 CMD [ "/AmiBroker/Broker.exe", "/portable" ]
